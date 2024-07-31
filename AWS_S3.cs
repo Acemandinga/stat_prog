@@ -1,6 +1,4 @@
-﻿using System.IO.Compression;
-using System.Net;
-using Amazon.Internal;
+﻿using System.Net;
 using Amazon.S3;
 using Amazon.S3.Model;
 
@@ -42,9 +40,9 @@ internal class AWS_S3
         return listObjects;
     }
 
-    public async Task<bool> GetObjectAsync(
+    public async Task<string> GetObjectAsync(
             string objectName,
-            string filePath)
+            string folderName)
     {
         // Create a GetObject request
         var request = new GetObjectRequest
@@ -56,16 +54,18 @@ internal class AWS_S3
         // Issue request and remember to dispose of the response
         using GetObjectResponse response = await awsS3Client.GetObjectAsync(request);
 
+        var outputPath = $"{folderName}\\{objectName}";
+
         try
         {
             // Save object to local file
-            await response.WriteResponseStreamToFileAsync($"{filePath}\\{objectName}", true, CancellationToken.None);
-            return response.HttpStatusCode == System.Net.HttpStatusCode.OK;
+            await response.WriteResponseStreamToFileAsync(outputPath, true, CancellationToken.None);
+            return outputPath;
         }
         catch (AmazonS3Exception ex)
         {
             Console.WriteLine($"Error saving {objectName}: {ex.Message}");
-            return false;
+            return null;
         }
     }
 
