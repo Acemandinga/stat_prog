@@ -73,9 +73,8 @@ internal class Program
 
             // open archive
             POArchive archive = new POArchive(path);
-
-            // process any work to do in the file
             archive.Process(history);
+
         }
 
         //
@@ -87,15 +86,6 @@ internal class Program
         // save history to bucket
         //
         var ret = await awsS3.PutFileAsync(HISTORY_FILENAME, historyPath);
-
-
-        //POArchive file = new POArchive("../../../../test.zip");
-        //List<string> fns = file.GetFilenames();
-        //foreach (string fn in fns)
-        //{
-        //    Console.WriteLine(fn);
-        //}
-
 
         return 0;
     }

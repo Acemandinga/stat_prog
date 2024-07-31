@@ -1,4 +1,7 @@
-﻿using System.IO.Compression;
+﻿using CsvHelper;
+using CsvHelper.Configuration;
+using System.Globalization;
+using System.IO.Compression;
 
 
 //
@@ -25,27 +28,51 @@ internal class POArchive
         return ret;
     }
 
-    // dt: datetime of archive file
     public void Process(History hist)
     {
-        // loop thru objects looking for work to do
-        var contents = GetFilenames();
-        foreach (var filename in contents)
+        // extract archive to work dir
+        ZipFile.ExtractToDirectory(archiveFilename, @"work", true);
+        
+        // load csv within
+        var files = GetFilenames();
+        var csvFile = files.Find(s => Path.GetExtension(s).ToLower() == ".csv");
+        if (csvFile != null)
         {
-            // Is this content file a PDF? 
-            if (Path.GetExtension(filename).ToLower() == ".pdf")
+            // open csv
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
             {
-                if (!hist.HasBeenProcessed(archiveFilename, filename))
-                {
-                    // process pdf file
-
-
-                    // store in history
-                    hist.AddPDFFile(archiveFilename, filename);
-                }
+                Delimiter = "~",
+                PrepareHeaderForMatch = args => args.Header.ToLower().Replace(" ", "")
+            };
+            
+            using (var reader = new StreamReader($"work\\{csvFile}"))
+            using (var csv = new CsvReader(reader, config))
+            {
+                var records = csv.GetRecords<CSVA>();
+                var a = 1;
             }
+
+            // process each entry from csv
+
         }
 
-        // 
+            // loop thru objects looking for work to do
+            //var contents = GetFilenames();
+            //foreach (var filename in contents)
+            //{
+            //    // Is this content file a PDF? 
+            //    if (Path.GetExtension(filename).ToLower() == ".pdf")
+            //    {
+            //        if (!hist.HasBeenProcessed(archiveFilename, filename))
+            //        {
+            //            // 
+
+            //            // store in history
+            //            hist.AddPDFFile(archiveFilename, filename);
+            //        }
+            //    }
+            //}
+
+            // 
+        }
     }
-}
