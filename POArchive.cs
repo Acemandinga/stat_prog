@@ -33,6 +33,9 @@ internal class POArchive
         // extract archive to work dir
         ZipFile.ExtractToDirectory(archiveFilename, @"work", true);
 
+        // hold onto prev entry for updating
+        var prevHistItem = hist.GetItemByArchive(Path.GetFileName(archiveFilename));
+
         // load csv within
         var files = GetFilenames();
         var csvFile = files.Find(s => Path.GetExtension(s).ToLower() == ".csv");
@@ -90,6 +93,12 @@ internal class POArchive
         else
         {
             Console.Error.WriteLine($"Error processing {archiveFilename} due to no CSV found.");
+        }
+
+        if (prevHistItem != null)
+        {
+            // touch history item
+            prevHistItem.dateTime = DateTime.Now;
         }
         return true;
     }

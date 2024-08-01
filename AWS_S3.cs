@@ -93,7 +93,7 @@ internal class AWS_S3
 
         if (response != null && response.HttpStatusCode == HttpStatusCode.OK)
         {
-            Console.WriteLine($"Successfully uploaded {objectName} to {bucketName}.");
+            Console.WriteLine($"Success.");
             return true;
         }
         else

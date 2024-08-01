@@ -43,17 +43,18 @@ internal class Program
         // utility to save history
         async Task<bool> SaveHistory()
         {
+            var histPath = $".\\{historyFilename}";
             //
             // save history to disk
             //
             Console.WriteLine($"Saving history...");
-            history.Save(historyFilename);
+            history.Save(histPath);
 
             //
             // save history to bucket
             //
             Console.WriteLine($"Writing history to S3...");
-            var ret = await awsS3.PutFileAsync(historyFilename, historyPath);
+            var ret = await awsS3.PutFileAsync(historyFilename, histPath);
             return false;
         }
 
