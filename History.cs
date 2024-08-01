@@ -24,9 +24,12 @@ internal class HistoryStore
 internal class History
 {
     public HistoryStore store;
+    private JsonSerializerOptions serializeOptions;
 
-    public History() {
+    public History()
+    {
         store = new HistoryStore() { items = [] };
+        serializeOptions = new JsonSerializerOptions() { IncludeFields = true };
     }
 
     public void Load(string fn)
@@ -35,35 +38,39 @@ internal class History
         HistoryStore? _store = null;
         if (!string.IsNullOrEmpty(strHistory))
         {
-            _store = JsonSerializer.Deserialize<HistoryStore>(strHistory);
-            if (_store != null)
+            try
             {
-                store = _store;
+
+                _store = JsonSerializer.Deserialize<HistoryStore>(strHistory, serializeOptions);
+                if (_store != null)
+                {
+                    store = _store;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error parsing history file - " + ex.Message);
+                Console.Error.WriteLine("Error parsing history file: " + ex);
             }
         }
     }
 
     public void Save(string fn)
     {
-        string strHistory = JsonSerializer.Serialize<HistoryStore>(store);
+        string strHistory = JsonSerializer.Serialize<HistoryStore>(store, serializeOptions);
         File.WriteAllText(fn, strHistory);
     }
 
-    public bool HasBeenProcessed(string archiveName, string filename)
+    public HistoryItem? GetItemByArchive(string archiveName)
     {
-        foreach(var item in store.items)
+        foreach (var item in store.items)
         {
             if (item.archiveFilename == archiveName)
             {
-                foreach(var fn in item.pdfFiles)
-                {
-                    if (fn == filename) {  
-                        return true; 
-                    }
-                }
+                return item;
             }
         }
-        return false;
+        return null;
     }
 
     public void AddPDFFile(string archiveName, string pdfName)

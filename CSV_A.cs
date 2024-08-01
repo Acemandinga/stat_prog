@@ -1,8 +1,8 @@
-﻿
+﻿//
+// CSV Format "A" (If I knew more about the source of this data I would use a better name, such as CSV_Walmart)
 //
-// CSV Format(s)
-//
-public class CSVA
+
+public class CSVA : IPORecord
 {
     public string id { get; set; }
     public string claimnumber { get; set; }
@@ -34,5 +34,17 @@ public class CSVA
     public string loadid { get; set; }
     public string carriername { get; set; }
     public string invoicestorenumber { get; set; }
+
+    
+    // IPORecord Interface
+    public string GetPO()
+    {
+        return this.ponumber;
+    }
+    public string[] GetPDFFiles()
+    {
+        // attachmentList might have comma-sep files, always return array
+        return this.attachmentlist.Split(',');
+    }
 }
 

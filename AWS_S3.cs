@@ -59,7 +59,7 @@ internal class AWS_S3
         try
         {
             // Save object to local file
-            await response.WriteResponseStreamToFileAsync(outputPath, true, CancellationToken.None);
+            await response.WriteResponseStreamToFileAsync(outputPath, false, CancellationToken.None);
             return outputPath;
         }
         catch (AmazonS3Exception ex)
@@ -80,8 +80,18 @@ internal class AWS_S3
             FilePath = filePath,
         };
 
-        var response = await awsS3Client.PutObjectAsync(request);
-        if (response.HttpStatusCode == System.Net.HttpStatusCode.OK)
+        PutObjectResponse? response;
+        try
+        {
+            response = await awsS3Client.PutObjectAsync(request);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error in PutObjectAsync: {ex.Message}");
+            return false;
+        }
+
+        if (response != null && response.HttpStatusCode == HttpStatusCode.OK)
         {
             Console.WriteLine($"Successfully uploaded {objectName} to {bucketName}.");
             return true;
