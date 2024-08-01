@@ -139,10 +139,10 @@ internal class Program
                 var path = await awsS3.GetObjectAsync(s3o.Key, workDir);
 
                 // open archive
-                Console.Write($"Processing {path}...");
+                Console.WriteLine($"Processing {path}...");
                 POArchive archive = new POArchive(path);
                 await archive.Process(history, awsS3);
-                Console.WriteLine($"  Done.");
+                Console.WriteLine($"Done with archive.");
 
                 await SaveHistory();
             }

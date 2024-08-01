@@ -2,6 +2,7 @@
 using CsvHelper.Configuration;
 using System.Globalization;
 using System.IO.Compression;
+using System.Text.Json;
 
 
 //
@@ -59,7 +60,13 @@ internal class POArchive
 
                 foreach (var result in records)
                 {
-                    Console.WriteLine($"  PO: {result.GetPO()}");
+                    var po = result.GetPO();
+                    if (string.IsNullOrEmpty(po)) {
+                        Console.WriteLine($"Warning: PO Number not found in record:\n{JsonSerializer.Serialize(result)}");
+                        // store unknown PO pdfs in an "unknown" folder
+                        po = "_unknown_";
+                    }
+                    Console.WriteLine($"  PO: {po}");
                     var pdfs = result.GetPDFFiles();
                     foreach (var pdf in pdfs)
                     {
@@ -72,7 +79,7 @@ internal class POArchive
                         Console.Write($"    {pdfFilename} Uploading...");
 
                         // upload pdf to s3
-                        var s3path = $"by-po/{result.GetPO()}/{pdfFilename}";
+                        var s3path = $"by-po/{po}/{pdfFilename}";
                         var filePath = $".\\work\\{pdfFilename}";
                         var ulSuccess = await awsS3.PutFileAsync(s3path, filePath);
 
